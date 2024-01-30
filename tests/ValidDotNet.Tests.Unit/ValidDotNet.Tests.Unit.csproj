@@ -18,4 +18,12 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\ValidDotNet\ValidDotNet.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\ValidDotNet\ValidDotNet.csproj" />
+    </ItemGroup>
+
 </Project>
