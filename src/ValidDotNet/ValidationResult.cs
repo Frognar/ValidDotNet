@@ -3,7 +3,7 @@ namespace ValidDotNet;
 public readonly record struct ValidationResult {
   public bool IsValid { get; }
   public ValidationResult(IReadOnlyCollection<string> list) {
-    IsValid = false;
+    IsValid = list.Count == 0;
   }
 
   public ValidationResult() {
