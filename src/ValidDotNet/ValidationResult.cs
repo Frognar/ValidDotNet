@@ -9,4 +9,8 @@ public readonly record struct ValidationResult {
   public ValidationResult() {
     IsValid = true;
   }
+
+  public ValidationResult AddError(string error) {
+    return new ValidationResult([error]);
+  }
 }

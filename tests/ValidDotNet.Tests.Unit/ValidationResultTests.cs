@@ -18,4 +18,11 @@ public class ValidationResultTests {
     ValidationResult result = new(["error"]);
     result.IsValid.Should().Be(false);
   }
+
+  [Fact]
+  public void IsInvalidWhenErrorAdded() {
+    ValidationResult result = new();
+    result = result.AddError("error");
+    result.IsValid.Should().Be(false);
+  }
 }
