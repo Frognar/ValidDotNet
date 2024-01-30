@@ -1,12 +1,18 @@
+using System.Collections.ObjectModel;
+
 namespace ValidDotNet;
 
 public readonly record struct ValidationResult {
   public bool IsValid { get; }
+  public ReadOnlyCollection<string> Errors { get; }
+
   public ValidationResult(IReadOnlyCollection<string> list) {
+    Errors = new ReadOnlyCollection<string>(list.ToList());
     IsValid = list.Count == 0;
   }
 
   public ValidationResult() {
+    Errors = ReadOnlyCollection<string>.Empty;
     IsValid = true;
   }
 

@@ -20,6 +20,12 @@ public class ValidationResultTests {
   }
 
   [Fact]
+  public void HasErrorsWhenCreatedWithErrors() {
+    ValidationResult result = new(["error"]);
+    result.Errors.Count.Should().Be(1);
+  }
+
+  [Fact]
   public void IsInvalidWhenErrorAdded() {
     ValidationResult result = new();
     result = result.AddError("error");
