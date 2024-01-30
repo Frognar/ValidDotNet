@@ -11,6 +11,7 @@ public readonly record struct ValidationResult {
   }
 
   public ValidationResult AddError(string error) {
+    ArgumentNullException.ThrowIfNull(error);
     return new ValidationResult([error]);
   }
 }
