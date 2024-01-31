@@ -14,4 +14,8 @@ public class Validator<T>(ImmutableList<(Func<T, bool> isInvalid, string errorMe
       .Select(v => v.errorMessage)
       .Aggregate(ValidationResult.valid, (result, error) => result.AddError(error));
   }
+
+  public Validator<T> With(params (Func<T, bool> isInvalid, string errorMessage)[] extraRules) {
+    return new Validator<T>(rules.Concat(extraRules).ToImmutableList());
+  }
 }

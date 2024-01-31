@@ -41,4 +41,13 @@ public class ValidatorTests {
   public void AllErrorsCollectedWhenMultipleRulesViolated(int value, string expected) {
     oddIntsSmallerThan10Validator.Validate(value).AggregateErrors(", ").Should().Be(expected);
   }
+
+  [Theory]
+  [InlineData(1, true)]
+  [InlineData(2, false)]
+  [InlineData(-11, true)]
+  [InlineData(11, false)]
+  public void CanAddMoreRulesToValidator(int value, bool expected) {
+    oddIntsValidator.With(extraRules: [smallerThan10]).Validate(value).IsValid.Should().Be(expected);
+  }
 }
