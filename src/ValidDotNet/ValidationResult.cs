@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace ValidDotNet;
+namespace Frognar.ValidDotNet;
 
 public readonly record struct ValidationResult {
   public bool IsValid { get; }
