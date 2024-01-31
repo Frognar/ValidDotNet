@@ -1,55 +1,50 @@
 namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidationResultTests {
+  static ValidationResult Result() => new();
+  static ValidationResult ResultWith(params string[] errors) => new(errors);
+
   [Fact]
   public void IsValidWithoutErrors() {
-    ValidationResult result = new();
-    result.IsValid.Should().BeTrue();
+    Result().IsValid.Should().BeTrue();
   }
 
   [Fact]
   public void IsValidWhenEmptyErrors() {
-    ValidationResult result = new([]);
-    result.IsValid.Should().BeTrue();
+    ResultWith([]).IsValid.Should().BeTrue();
   }
 
   [Fact]
   public void HasNoErrorsWhenNoErrorAdded() {
-    ValidationResult result = new();
-    result.Errors.Should().BeEmpty();
+    Result().Errors.Should().BeEmpty();
   }
 
   [Fact]
   public void IsInvalidWithErrors() {
-    ValidationResult result = new(["error"]);
-    result.IsValid.Should().BeFalse();
+    ResultWith("error").IsValid.Should().BeFalse();
   }
 
   [Fact]
   public void HasErrorsWhenCreatedWithErrors() {
-    ValidationResult result = new(["error"]);
+    ValidationResult result = ResultWith(["error"]);
     result.Errors.Should().HaveCount(1);
     result.Errors.Should().Contain("error");
   }
 
   [Fact]
   public void IsInvalidWhenErrorAdded() {
-    ValidationResult result = new();
-    result = result.AddError("error");
-    result.IsValid.Should().BeFalse();
+    Result().AddError("error").IsValid.Should().BeFalse();
   }
 
   [Fact]
   public void ThrowsExceptionWhenNullError() {
-    ValidationResult result = new();
-    Func<ValidationResult> act = () => result.AddError(null!);
+    Func<ValidationResult> act = () => Result().AddError(null!);
     act.Should().Throw<ArgumentNullException>();
   }
 
   [Fact]
   public void HasMultipleErrorsWhenErrorAddedToInvalid() {
-    ValidationResult result = new(["error1"]);
-    result = result.AddError("error2");
+    ValidationResult result = ResultWith(["error1"]).AddError("error2");
     result.Errors.Should().HaveCount(2);
     result.Errors.Should().ContainInOrder("error1", "error2");
   }
@@ -60,8 +55,6 @@ public class ValidationResultTests {
   [InlineData(new[] { "a", "b" }, "\n", "a\nb")]
   [InlineData(new[] { "a", "b", "c", "d" }, ",", "a,b,c,d")]
   public void AggregatesErrorsToSingleStringWithSeparator(string[] errors, string separator, string expected) {
-    ValidationResult result = new(errors.ToList());
-    string errorMessage = result.AggregateErrors(separator);
-    errorMessage.Should().Be(expected);
+    ResultWith(errors).AggregateErrors(separator).Should().Be(expected);
   }
 }
