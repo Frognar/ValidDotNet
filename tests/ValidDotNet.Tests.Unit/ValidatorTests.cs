@@ -1,14 +1,13 @@
 ﻿namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidatorTests {
-  [Fact]
-  public void CreateValidatorForOddInts() {
+  [Theory]
+  [InlineData(1, true)]
+  [InlineData(2, false)]
+  [InlineData(int.MaxValue, true)]
+  [InlineData(int.MinValue, false)]
+  public void OddIntsAreConsideredValid(int value, bool expected) {
     Validator<int> validator = new((i => i % 2 == 0, "must be odd"));
-  }
-
-  [Fact]
-  public void OddIntsAreConsideredValid() {
-    Validator<int> validator = new((i => i % 2 == 0, "must be odd"));
-    validator.Validate(1).IsValid.Should().BeTrue();
+    validator.Validate(value).IsValid.Should().Be(expected);
   }
 }

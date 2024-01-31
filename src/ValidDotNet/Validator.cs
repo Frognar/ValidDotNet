@@ -1,12 +1,15 @@
-﻿using System.Diagnostics;
-
-namespace Frognar.ValidDotNet;
+﻿namespace Frognar.ValidDotNet;
 
 public class Validator<T> {
+  readonly (Func<T, bool> isInvalid, string errorMessage) validator;
+
   public Validator((Func<T, bool> isInvalid, string errorMessage) validator) {
+    this.validator = validator;
   }
 
   public ValidationResult Validate(T item) {
-    return ValidationResult.valid;
+    return validator.isInvalid(item)
+      ? new ValidationResult(["error"])
+      : ValidationResult.valid;
   }
 }
