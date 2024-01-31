@@ -45,4 +45,12 @@ public class ValidationResultTests {
     Func<ValidationResult> act = () => result.AddError(null!);
     act.Should().Throw<ArgumentNullException>();
   }
+
+  [Fact]
+  public void HasMultipleErrorsWhenErrorAddedToInvalid() {
+    ValidationResult result = new(["error1"]);
+    result = result.AddError("error2");
+    result.Errors.Should().HaveCount(2);
+    result.Errors.Should().ContainInOrder("error1", "error2");
+  }
 }
