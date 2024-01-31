@@ -2,7 +2,7 @@
 
 public class ValidatorTests {
   [Fact]
-  public void CreateValidatorForInts() {
-    Validator<int> validator = new();
+  public void CreateValidatorForOddInts() {
+    Validator<int> validator = new((i => i % 2 == 0, "must be odd"));
   }
 }
