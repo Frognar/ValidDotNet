@@ -6,8 +6,9 @@ public class Validator<T>(params (Func<T, bool> isInvalid, string errorMessage)[
   readonly ImmutableList<(Func<T, bool> isInvalid, string errorMessage)> validators = validators.ToImmutableList();
 
   public ValidationResult Validate(T item) {
-    return validators.Any(v => v.isInvalid(item))
-      ? new ValidationResult(["error"])
-      : ValidationResult.valid;
+    return validators
+      .Where(v => v.isInvalid(item))
+      .Select(v => v.errorMessage)
+      .Aggregate(ValidationResult.valid, (result, error) => result.AddError(error));
   }
 }

@@ -21,4 +21,21 @@ public class ValidatorTests {
       (i => i > 10, "must be smaller than 10"));
     validator.Validate(value).IsValid.Should().Be(expected);
   }
+
+  [Fact]
+  public void AllIntsAreConsideredValidWhenNoRulesGiven() {
+    Validator<int> validator = new();
+    validator.Validate(1).IsValid.Should().BeTrue();
+  }
+
+  [Theory]
+  [InlineData(1, "")]
+  [InlineData(2, "must be odd")]
+  [InlineData(11, "must be smaller than 10")]
+  [InlineData(12, "must be odd, must be smaller than 10")]
+  public void AllErrorsCollectedWhenMultipleRulesViolated(int value, string expected) {
+    Validator<int> validator = new((i => i % 2 == 0, "must be odd"),
+      (i => i > 10, "must be smaller than 10"));
+    validator.Validate(value).AggregateErrors(", ").Should().Be(expected);
+  }
 }
