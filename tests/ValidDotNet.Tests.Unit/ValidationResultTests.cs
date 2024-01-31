@@ -1,4 +1,4 @@
-namespace ValidDotNet.Tests.Unit;
+namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidationResultTests {
   [Fact]
