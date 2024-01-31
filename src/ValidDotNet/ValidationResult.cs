@@ -3,6 +3,8 @@ using System.Collections.Immutable;
 namespace Frognar.ValidDotNet;
 
 public readonly record struct ValidationResult {
+  public static ValidationResult valid = new();
+
   public bool IsValid { get; }
   public ImmutableList<string> Errors { get; }
 

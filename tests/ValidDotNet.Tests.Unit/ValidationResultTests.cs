@@ -1,7 +1,7 @@
 namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidationResultTests {
-  static ValidationResult Result() => new();
+  static ValidationResult Result() => ValidationResult.valid;
   static ValidationResult ResultWith(params string[] errors) => new(errors);
 
   [Fact]
