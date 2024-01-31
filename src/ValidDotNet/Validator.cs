@@ -10,7 +10,7 @@ public class Validator<T> {
   }
 
   public ValidationResult Validate(T item) {
-    return validators.First().isInvalid(item)
+    return validators.Any(v => v.isInvalid(item))
       ? new ValidationResult(["error"])
       : ValidationResult.valid;
   }

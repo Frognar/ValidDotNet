@@ -11,9 +11,14 @@ public class ValidatorTests {
     validator.Validate(value).IsValid.Should().Be(expected);
   }
 
-  [Fact]
-  public void OddIntsSmallerThan10AreConsideredValid() {
+  [Theory]
+  [InlineData(1, true)]
+  [InlineData(2, false)]
+  [InlineData(-11, true)]
+  [InlineData(11, false)]
+  public void OddIntsSmallerThan10AreConsideredValid(int value, bool expected) {
     Validator<int> validator = new((i => i % 2 == 0, "must be odd"),
       (i => i > 10, "must be smaller than 10"));
+    validator.Validate(value).IsValid.Should().Be(expected);
   }
 }
