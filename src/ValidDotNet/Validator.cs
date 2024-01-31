@@ -2,11 +2,14 @@
 
 namespace Frognar.ValidDotNet;
 
-public class Validator<T>(params (Func<T, bool> isInvalid, string errorMessage)[] validators) {
-  readonly ImmutableList<(Func<T, bool> isInvalid, string errorMessage)> validators = validators.ToImmutableList();
+public class Validator<T>(ImmutableList<(Func<T, bool> isInvalid, string errorMessage)> rules) {
+
+  public Validator(params (Func<T, bool> isInvalid, string errorMessage)[] rules)
+    : this(rules.ToImmutableList()) {
+  }
 
   public ValidationResult Validate(T item) {
-    return validators
+    return rules
       .Where(v => v.isInvalid(item))
       .Select(v => v.errorMessage)
       .Aggregate(ValidationResult.valid, (result, error) => result.AddError(error));
