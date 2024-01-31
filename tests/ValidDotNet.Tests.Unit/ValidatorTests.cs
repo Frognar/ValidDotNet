@@ -10,4 +10,10 @@ public class ValidatorTests {
     Validator<int> validator = new((i => i % 2 == 0, "must be odd"));
     validator.Validate(value).IsValid.Should().Be(expected);
   }
+
+  [Fact]
+  public void OddIntsSmallerThan10AreConsideredValid() {
+    Validator<int> validator = new((i => i % 2 == 0, "must be odd"),
+      (i => i > 10, "must be smaller than 10"));
+  }
 }
