@@ -1,14 +1,16 @@
-﻿namespace Frognar.ValidDotNet;
+﻿using System.Collections.Immutable;
+
+namespace Frognar.ValidDotNet;
 
 public class Validator<T> {
-  readonly (Func<T, bool> isInvalid, string errorMessage) validator;
+  readonly ImmutableList<(Func<T, bool> isInvalid, string errorMessage)> validators;
 
   public Validator(params (Func<T, bool> isInvalid, string errorMessage)[] validators) {
-    validator = validators.First();
+    this.validators = validators.ToImmutableList();
   }
 
   public ValidationResult Validate(T item) {
-    return validator.isInvalid(item)
+    return validators.First().isInvalid(item)
       ? new ValidationResult(["error"])
       : ValidationResult.valid;
   }
