@@ -20,4 +20,8 @@ public readonly record struct ValidationResult {
     ArgumentNullException.ThrowIfNull(error);
     return new ValidationResult(Errors.Append(error).ToList());
   }
+
+  public string AggregateErrors(string separator) {
+    return string.Join(separator, Errors);
+  }
 }

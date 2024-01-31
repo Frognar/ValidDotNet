@@ -53,4 +53,15 @@ public class ValidationResultTests {
     result.Errors.Should().HaveCount(2);
     result.Errors.Should().ContainInOrder("error1", "error2");
   }
+
+  [Theory]
+  [InlineData(new string[] { }, "\n", "")]
+  [InlineData(new[] { "a" }, "\n", "a")]
+  [InlineData(new[] { "a", "b" }, "\n", "a\nb")]
+  [InlineData(new[] { "a", "b", "c", "d" }, ",", "a,b,c,d")]
+  public void AggregatesErrorsToSingleStringWithSeparator(string[] errors, string separator, string expected) {
+    ValidationResult result = new(errors.ToList());
+    string errorMessage = result.AggregateErrors(separator);
+    errorMessage.Should().Be(expected);
+  }
 }
