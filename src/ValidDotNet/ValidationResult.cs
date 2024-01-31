@@ -1,18 +1,18 @@
-using System.Collections.ObjectModel;
+using System.Collections.Immutable;
 
 namespace Frognar.ValidDotNet;
 
 public readonly record struct ValidationResult {
   public bool IsValid { get; }
-  public ReadOnlyCollection<string> Errors { get; }
+  public ImmutableList<string> Errors { get; }
 
-  public ValidationResult(IReadOnlyCollection<string> list) {
-    Errors = new ReadOnlyCollection<string>(list.ToList());
-    IsValid = list.Count == 0;
+  public ValidationResult(IEnumerable<string> list) {
+    Errors = list.ToImmutableList();
+    IsValid = Errors.Count == 0;
   }
 
   public ValidationResult() {
-    Errors = ReadOnlyCollection<string>.Empty;
+    Errors = ImmutableList<string>.Empty;
     IsValid = true;
   }
 
