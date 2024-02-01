@@ -2,7 +2,7 @@ namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidationResultTests {
   static ValidationResult Result() => ValidationResult.valid;
-  static ValidationResult ResultWith(params string[] errors) => new(errors);
+  static ValidationResult ResultWith(params ValidationError[] errors) => new(errors);
 
   [Fact]
   public void IsValidWithoutErrors() {
@@ -21,19 +21,19 @@ public class ValidationResultTests {
 
   [Fact]
   public void IsInvalidWithErrors() {
-    ResultWith("error").IsValid.Should().BeFalse();
+    ResultWith(Error("error")).IsValid.Should().BeFalse();
   }
 
   [Fact]
   public void HasErrorsWhenCreatedWithErrors() {
-    ValidationResult result = ResultWith(["error"]);
+    ValidationResult result = ResultWith([Error("error")]);
     result.Errors.Should().HaveCount(1);
-    result.Errors.Should().Contain("error");
+    result.Errors.Should().Contain(Error("error"));
   }
 
   [Fact]
   public void IsInvalidWhenErrorAdded() {
-    Result().AddError("error").IsValid.Should().BeFalse();
+    Result().AddError(Error("error")).IsValid.Should().BeFalse();
   }
 
   [Fact]
@@ -44,9 +44,9 @@ public class ValidationResultTests {
 
   [Fact]
   public void HasMultipleErrorsWhenErrorAddedToInvalid() {
-    ValidationResult result = ResultWith(["error1"]).AddError("error2");
+    ValidationResult result = ResultWith([Error("error1")]).AddError(Error("error2"));
     result.Errors.Should().HaveCount(2);
-    result.Errors.Should().ContainInOrder("error1", "error2");
+    result.Errors.Should().ContainInOrder(Error("error1"), Error("error2"));
   }
 
   [Theory]
@@ -55,6 +55,51 @@ public class ValidationResultTests {
   [InlineData(new[] { "a", "b" }, "\n", "a\nb")]
   [InlineData(new[] { "a", "b", "c", "d" }, ",", "a,b,c,d")]
   public void AggregatesErrorsToSingleStringWithSeparator(string[] errors, string separator, string expected) {
-    ResultWith(errors).AggregateErrors(separator).Should().Be(expected);
+    ValidationError[] validationErrors = errors.Select(e => new ValidationError(e)).ToArray();
+    ResultWith(validationErrors).AggregateErrors(separator).Should().Be(expected);
+  }
+
+  [Theory]
+  [MemberData(nameof(GetErrors))]
+  public void AggregatesErrorsWithCodesToSingleStringWithSeperators(
+    ValidationError[] errors,
+    string separator,
+    string keyValueSeparator,
+    string expected) {
+    ResultWith(errors).AggregateErrors(separator, keyValueSeparator).Should().Be(expected);
+  }
+
+  public static IEnumerable<object[]> GetErrors() {
+    yield return [new ValidationErrorWithCode[] { }, ",", ":", ""];
+    yield return [new[] { new ValidationErrorWithCode("code1", "error1") }, ",", ":", "code1:error1"];
+    yield return
+    [
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationErrorWithCode("code2", "error1")
+      },
+      ",", ":", "code1:error1,code2:error1"
+    ];
+    yield return
+    [
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationErrorWithCode("code2", "error1"),
+        new ValidationErrorWithCode("code2", "error2")
+      },
+      "\n", "|", "code1|error1\ncode2|error1\ncode2|error2"
+    ];
+    yield return
+    [
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationError("superError"),
+        new ValidationErrorWithCode("code2", "error2")
+      },
+      "\n", "|", "code1|error1\nsuperError\ncode2|error2"
+    ];
   }
 }
