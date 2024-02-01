@@ -1,10 +1,16 @@
 ﻿namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidatorTests {
-  readonly static (Func<int, bool>, string) oddInts = (i => i % 2 == 0, "must be odd");
-  readonly static (Func<int, bool>, string) smallerThan10 = (i => i >= 10, "must be smaller than 10");
-  readonly Validator<int> oddIntsValidator = new(oddInts);
-  readonly Validator<int> oddIntsSmallerThan10Validator = new(oddInts, smallerThan10);
+  class OddIntsValidator() : Validator<int>([(i => i % 2 == 0, "must be odd")]);
+
+  readonly OddIntsValidator oddIntsValidator;
+  readonly Validator<int> oddIntsSmallerThan10Validator;
+
+  public ValidatorTests() {
+    oddIntsValidator = new OddIntsValidator();
+    oddIntsSmallerThan10Validator =
+      oddIntsValidator.With(extraRules: [(i => i >= 10, "must be smaller than 10")]);
+  }
 
   [Theory]
   [InlineData(1, true)]
@@ -30,7 +36,7 @@ public class ValidatorTests {
   [InlineData(int.MaxValue)]
   [InlineData(int.MinValue)]
   public void AllIntsAreConsideredValidWhenNoRulesGiven(int value) {
-    new Validator<int>().Validate(value).IsValid.Should().BeTrue();
+    new Validator<int>(rules: []).Validate(value).IsValid.Should().BeTrue();
   }
 
   [Theory]
@@ -40,14 +46,5 @@ public class ValidatorTests {
   [InlineData(12, "must be odd, must be smaller than 10")]
   public void AllErrorsCollectedWhenMultipleRulesViolated(int value, string expected) {
     oddIntsSmallerThan10Validator.Validate(value).AggregateErrors(", ").Should().Be(expected);
-  }
-
-  [Theory]
-  [InlineData(1, true)]
-  [InlineData(2, false)]
-  [InlineData(-11, true)]
-  [InlineData(11, false)]
-  public void CanAddMoreRulesToValidator(int value, bool expected) {
-    oddIntsValidator.With(extraRules: [smallerThan10]).Validate(value).IsValid.Should().Be(expected);
   }
 }
