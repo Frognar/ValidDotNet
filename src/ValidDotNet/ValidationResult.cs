@@ -25,7 +25,7 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// Initializes a new instance of the <see cref="ValidationResult"/> struct with the specified errors.
   /// </summary>
   /// <param name="errors">The collection of errors.</param>
-  public ValidationResult(IEnumerable<string> errors) : this(errors.Select(e => new ValidationError(e)).ToImmutableList()) {
+  public ValidationResult(IEnumerable<ValidationError> errors) : this(errors.ToImmutableList()) {
   }
 
   /// <summary>
