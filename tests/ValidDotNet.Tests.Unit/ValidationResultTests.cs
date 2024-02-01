@@ -58,4 +58,14 @@ public class ValidationResultTests {
     ValidationError[] validationErrors = errors.Select(e => new ValidationError(e)).ToArray();
     ResultWith(validationErrors).AggregateErrors(separator).Should().Be(expected);
   }
+  
+  [Fact]
+  public void AggregatesErrorsWithCodesToSingleStringWithSeperators() {
+    ValidationError[] validationErrors =
+    [
+      new ValidationErrorWithCode("code1", "error1"),
+      new ValidationErrorWithCode("code1", "error2"),
+      new ValidationErrorWithCode("code2", "error2"),
+    ];
+  }
 }
