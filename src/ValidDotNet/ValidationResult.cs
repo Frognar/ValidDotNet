@@ -8,7 +8,7 @@ namespace Frognar.ValidDotNet;
 /// <remarks>
 /// Instances of this struct are immutable. Use the static 'valid' instance for successful validations.
 /// </remarks>
-public readonly record struct ValidationResult(ImmutableList<string> Errors) {
+public readonly record struct ValidationResult(ImmutableList<ValidationError> Errors) {
   public static ValidationResult valid = new();
 
   /// <summary>
@@ -19,19 +19,19 @@ public readonly record struct ValidationResult(ImmutableList<string> Errors) {
   /// <summary>
   /// Gets the immutable list of errors associated with the validation result.
   /// </summary>
-  public ImmutableList<string> Errors { get; } = Errors;
+  public ImmutableList<ValidationError> Errors { get; } = Errors;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="ValidationResult"/> struct with the specified errors.
   /// </summary>
   /// <param name="errors">The collection of errors.</param>
-  public ValidationResult(IEnumerable<string> errors) : this(errors.ToImmutableList()) {
+  public ValidationResult(IEnumerable<string> errors) : this(errors.Select(e => new ValidationError(e)).ToImmutableList()) {
   }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="ValidationResult"/> struct representing a valid result.
   /// </summary>
-  public ValidationResult() : this(ImmutableList<string>.Empty) {
+  public ValidationResult() : this(ImmutableList<ValidationError>.Empty) {
   }
 
   /// <summary>
@@ -40,9 +40,9 @@ public readonly record struct ValidationResult(ImmutableList<string> Errors) {
   /// <param name="error">The error message to be added.</param>
   /// <returns>A new instance of <see cref="ValidationResult"/> with the added error.</returns>
   /// <exception cref="ArgumentNullException">Thrown if the provided error is null.</exception>
-  public ValidationResult AddError(string error) {
+  public ValidationResult AddError(ValidationError error) {
     ArgumentNullException.ThrowIfNull(error);
-    return new ValidationResult(Errors.Append(error));
+    return new ValidationResult(Errors.Append(error).ToImmutableList());
   }
 
   /// <summary>
@@ -51,5 +51,5 @@ public readonly record struct ValidationResult(ImmutableList<string> Errors) {
   /// <param name="separator">The separator to be used between error messages.</param>
   /// <returns>A concatenated string of errors.</returns>
   public string AggregateErrors(string separator)
-    => string.Join(separator, Errors);
+    => string.Join(separator, Errors.Select(e => e.Message));
 }

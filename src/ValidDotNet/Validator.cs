@@ -7,11 +7,11 @@ namespace Frognar.ValidDotNet;
 /// </summary>
 /// <typeparam name="T">The type of object to be validated.</typeparam>
 /// <param name="rules">The initial set of validation rules.</param>
-public class Validator<T>(IEnumerable<(Func<T, bool> isInvalid, string errorMessage)> rules) {
+public class Validator<T>(IEnumerable<(Func<T, bool> isInvalid, ValidationError error)> rules) {
   /// <summary>
   /// Represents a collection of validation rules, each consisting of a condition and an associated error message.
   /// </summary>
-  readonly ImmutableList<(Func<T, bool> isInvalid, string errorMessage)> rules = rules.ToImmutableList();
+  readonly ImmutableList<(Func<T, bool> isInvalid, ValidationError error)> rules = rules.ToImmutableList();
 
   /// <summary>
   /// Validates the specified object against the set of rules and returns a <see cref="ValidationResult"/>.
@@ -21,7 +21,7 @@ public class Validator<T>(IEnumerable<(Func<T, bool> isInvalid, string errorMess
   public ValidationResult Validate(T item)
     => rules
       .Where(v => v.isInvalid(item))
-      .Select(v => v.errorMessage)
+      .Select(v => v.error)
       .Aggregate(ValidationResult.valid, (result, error) => result.AddError(error));
 
   /// <summary>
@@ -29,6 +29,6 @@ public class Validator<T>(IEnumerable<(Func<T, bool> isInvalid, string errorMess
   /// </summary>
   /// <param name="extraRules">Additional validation rules to be added.</param>
   /// <returns>A new instance of <see cref="Validator{T}"/> with the combined set of rules.</returns>
-  public Validator<T> With(IEnumerable<(Func<T, bool> isInvalid, string errorMessage)> extraRules)
+  public Validator<T> With(IEnumerable<(Func<T, bool> isInvalid, ValidationError error)> extraRules)
     => new(rules.Concat(extraRules));
 }
