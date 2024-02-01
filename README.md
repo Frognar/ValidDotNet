@@ -27,7 +27,7 @@ The library consists of two main classes:
 To use ValidDotNet in your project, you can install it via NuGet Package Manager:
 
 ```bash
-dotnet add package ValidDotNet
+dotnet add package Frognar.ValidDotNet
 ```
 
 ## Usage
