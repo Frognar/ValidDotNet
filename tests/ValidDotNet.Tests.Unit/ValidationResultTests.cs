@@ -1,11 +1,8 @@
-using System.Collections.Immutable;
-
 namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidationResultTests {
   static ValidationResult Result() => ValidationResult.valid;
-  static ValidationResult ResultWith(params ValidationError[] errors) => new(errors.ToImmutableList());
-  static ValidationError Error(string error) => new(error);
+  static ValidationResult ResultWith(params ValidationError[] errors) => new(errors);
 
   [Fact]
   public void IsValidWithoutErrors() {
