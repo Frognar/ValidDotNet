@@ -1,7 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-      <RootNamespace>Frognar.ValidDotNet</RootNamespace>
+        <RootNamespace>Frognar.ValidDotNet</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Frognar.ValidDotNet</PackageId>
+        <Version>0.0.1</Version>
+        <Title>ValidDotNet</Title>
+        <Description>The ValidDotNet package provides a versatile set of classes for streamlined validation in C# applications. The package includes a ValidationResult record struct, allowing easy tracking of validation errors, and a generic Validator class that enables the definition and application of validation rules on objects of type T. The package promotes clean and concise validation logic in your software systems, enhancing maintainability and reliability.</Description>
+        <Copyright>Frognar 2024</Copyright>
+        <PackageProjectUrl>https://github.com/Frognar/ValidDotNet</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/Frognar/ValidDotNet</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Validation, C#</PackageTags>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath=""/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
+    </ItemGroup>
 
 </Project>
