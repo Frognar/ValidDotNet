@@ -15,7 +15,7 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// Gets a value indicating whether the validation result is valid, i.e., no errors are present.
   /// </summary>
   public bool IsValid { get; } = Errors.Count == 0;
-  
+
   /// <summary>
   /// Gets the immutable list of errors associated with the validation result.
   /// </summary>
@@ -46,10 +46,19 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   }
 
   /// <summary>
-  /// Aggregates the errors into a single string using the specified separator.
+  /// Aggregates the errors in the validation result into a single string.
   /// </summary>
-  /// <param name="separator">The separator to be used between error messages.</param>
-  /// <returns>A concatenated string of errors.</returns>
-  public string AggregateErrors(string separator)
-    => string.Join(separator, Errors.Select(e => e.Message));
+  /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
+  /// <param name="keyValueSeparator">The separator used between error code and message. Default is ":".</param>
+  /// <returns>A concatenated string of errors with optional code and message separation.</returns>
+  public string AggregateErrors(string separator = ",", string keyValueSeparator = ":")
+    => string.Join(separator, Errors.Select(ToStringSelector(keyValueSeparator)));
+
+  static Func<ValidationError, string> ToStringSelector(string keyValueSeparator) {
+    return e => e switch
+    {
+      ValidationErrorWithCode errorWithCode => $"{errorWithCode.Code}{keyValueSeparator}{errorWithCode.Message}",
+      _ => e.Message
+    };
+  }
 }

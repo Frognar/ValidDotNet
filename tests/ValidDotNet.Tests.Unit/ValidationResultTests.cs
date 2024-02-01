@@ -58,14 +58,48 @@ public class ValidationResultTests {
     ValidationError[] validationErrors = errors.Select(e => new ValidationError(e)).ToArray();
     ResultWith(validationErrors).AggregateErrors(separator).Should().Be(expected);
   }
-  
-  [Fact]
-  public void AggregatesErrorsWithCodesToSingleStringWithSeperators() {
-    ValidationError[] validationErrors =
+
+  [Theory]
+  [MemberData(nameof(GetErrors))]
+  public void AggregatesErrorsWithCodesToSingleStringWithSeperators(
+    ValidationError[] errors,
+    string separator,
+    string keyValueSeparator,
+    string expected) {
+    ResultWith(errors).AggregateErrors(separator, keyValueSeparator).Should().Be(expected);
+  }
+
+  public static IEnumerable<object[]> GetErrors() {
+    yield return [new ValidationErrorWithCode[] { }, ",", ":", ""];
+    yield return [new[] { new ValidationErrorWithCode("code1", "error1") }, ",", ":", "code1:error1"];
+    yield return
     [
-      new ValidationErrorWithCode("code1", "error1"),
-      new ValidationErrorWithCode("code1", "error2"),
-      new ValidationErrorWithCode("code2", "error2"),
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationErrorWithCode("code2", "error1")
+      },
+      ",", ":", "code1:error1,code2:error1"
+    ];
+    yield return
+    [
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationErrorWithCode("code2", "error1"),
+        new ValidationErrorWithCode("code2", "error2")
+      },
+      "\n", "|", "code1|error1\ncode2|error1\ncode2|error2"
+    ];
+    yield return
+    [
+      new[]
+      {
+        new ValidationErrorWithCode("code1", "error1"),
+        new ValidationError("superError"),
+        new ValidationErrorWithCode("code2", "error2")
+      },
+      "\n", "|", "code1|error1\nsuperError\ncode2|error2"
     ];
   }
 }
