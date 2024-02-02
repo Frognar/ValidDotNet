@@ -37,8 +37,34 @@ public class ValidationResultTests {
   }
 
   [Fact]
+  public void HasErrorsWhenErrorAdded() {
+    ValidationResult result = Result().AddError(Error("error"));
+    result.Errors.Should().HaveCount(1);
+    result.Errors.Should().Contain(Error("error"));
+  }
+
+  [Fact]
   public void ThrowsExceptionWhenNullError() {
     ValidationError error = null!;
+    Func<ValidationResult> act = () => Result().AddError(error);
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
+  public void IsInvalidWhenErrorMessageAdded() {
+    Result().AddError("error").IsValid.Should().BeFalse();
+  }
+
+  [Fact]
+  public void HasErrorsWhenErrorMessageAdded() {
+    ValidationResult result = Result().AddError("error");
+    result.Errors.Should().HaveCount(1);
+    result.Errors.Should().Contain(Error("error"));
+  }
+
+  [Fact]
+  public void ThrowsExceptionWhenNullErrorMessage() {
+    string error = null!;
     Func<ValidationResult> act = () => Result().AddError(error);
     act.Should().Throw<ArgumentNullException>();
   }
