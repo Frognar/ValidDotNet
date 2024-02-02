@@ -42,31 +42,63 @@ Here are some basic examples to get you started:
 
 ### Creating a ValidationResult
 ```cs
-ValidationResult newResult = new();
-ValidationResult valid = ValidationResult.valid;
-ValidationResult invalid = valid.AddError("error");
+// Create a ValidationResult with no errors (valid result).
+ValidationResult validResult = ValidationResult.valid;
+ValidationResult otherValidResult = new();
+
+// Create a validation result with errors.
+ValidationResult invalidResult = new ValidationResult(new[]
+{
+    Validation.Error("Invalid input."), // new ValidationErrorMessage(Invalid input."),
+    Validation.Error("Code123", "Invalid key."), // new ValidationErrorMessageWithKey("Code123", "Invalid key.")
+    // Add more errors as needed
+});
+
+// Add a new error to the  existing validation result.
+ValidationResult otherInvalidResult = validResult
+    .AddError(new ValidationErrorMessage("Invalid input."))
+    .AddError("Invalid input.") // Shorthand for adding a new error with a string message.
+    .AddError(new ValidationErrorMessageWithKey("Code123", "Invalid key."))
+    .AddError("Code123", "Invalid key."); // Shorthand for adding a new error with a key and a string message.
+
+// Aggregate error messages into a single string.
+string errors = invalidResult.AggregateErrors(separator: ", ", keyValueSeparator: "|");
+Console.WriteLine($"Validation failed with errors: {errors}"); // "Validation failed with errors: Invalid input., Code123|Invalid key."
+
+// Custom Error handling
+ValidationResult invalidWithCustomError = validResult.AddError(new CustomError()).AddError("key", "error");
+// string customError = invalidWithCustomError.AggregateErrors(); // Throws NotSupportedException
+string customError = invalidWithCustomError.AggregateErrors(CustomSelector, separator: "\n");
+Console.WriteLine($"Validation failed with errors: {customError}"); // "Validation failed with errors: custom\nkey:error 
+
+record CustomError : ValidationError;
 ```
 
 ### Creating a Validator and Performing Validation
 ```cs
-List<(Func<string, bool> isInvalid, string errorMessage)> rules = new() {
-    (s => string.IsNullOrWhiteSpace(s), "String cannot be empty or whitespace."),
-    (s => s.Length > 10, "String length should not exceed 10 characters.")
-};
+char[] invalidChars = ['a', 'b', 'c'];
+List<(Func<CreateUserCommand, bool> isInvalid, ValidationError error)> rules =
+[
+  (u => string.IsNullOrWhiteSpace(u.Login), Validation.Error(nameof(CreateUserCommand.Login), "Login cannot be empty")),
+  (u => u.Password.Length < 10, Validation.Error(nameof(CreateUserCommand.Password), "Password must be at least 10 characters long")),
+  (u => u.Password.Any(c => invalidChars.Contains(c)), Validation.Error(nameof(CreateUserCommand.Password), "Password cannot contain 'a', 'b', or 'c'")),
+];
 
-Validator<string> validator = new(rules);
-ValidationResult validation = validator.Validate("SampleString");
+Validator<CreateUserCommand> validator = new(rules);
+ValidationResult validation = validator.Validate(new CreateUserCommand("user", "password"));
 if (validation.IsValid) {
-    // Handle success
+  // Handle success
 } else {
-    // Handle errors
-    string errorMessages = validation.AggregateErrors(", ");
-    Console.WriteLine($"Validation failed with errors: {errorMessages}");
+  // Handle errors
+  string errorMessages = validation.AggregateErrors(", ");
+  Console.WriteLine($"Validation failed with errors: {errorMessages}"); // Validation failed with errors: Password:Password must be at least 10 characters long, Password:Password cannot contain 'a', 'b', or 'c'
 }
+
+record CreateUserCommand(string Login, string Password);
 ```
 #### Inheritance supported!
 ```cs
-public class OddIntsValidator() : Validator<int>([(i => i % 2 == 0, "Value must be odd")]);
+public class OddIntsValidator() : Validator<int>([(i => i % 2 == 0, Validation.Error("Value must be odd"))]);
 ```
 
 ## License
