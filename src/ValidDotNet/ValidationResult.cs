@@ -37,12 +37,44 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// <summary>
   /// Adds a new error to the validation result.
   /// </summary>
-  /// <param name="error">The error message to be added.</param>
+  /// <param name="error">The error to be added.</param>
   /// <returns>A new instance of <see cref="ValidationResult"/> with the added error.</returns>
   /// <exception cref="ArgumentNullException">Thrown if the provided error is null.</exception>
   public ValidationResult AddError(ValidationError error) {
     ArgumentNullException.ThrowIfNull(error);
     return new ValidationResult(Errors.Append(error).ToImmutableList());
+  }
+  
+  /// <summary>
+  /// Adds a new error message to the validation result.
+  /// </summary>
+  /// <param name="error">The error message to be added.</param>
+  /// <returns>A new instance of <see cref="ValidationResult"/> with the added error message.</returns>
+  /// <remarks>
+  /// This method creates a new <see cref="ValidationErrorMessage"/> using the provided error message
+  /// and appends it to the existing list of errors in the validation result.
+  /// </remarks>
+  /// <exception cref="ArgumentNullException">Thrown if the provided error message is null.</exception>
+  public ValidationResult AddError(string error) {
+    ArgumentNullException.ThrowIfNull(error);
+    return new ValidationResult(Errors.Append(Validation.Error(error)).ToImmutableList());
+  }
+  
+  /// <summary>
+  /// Adds a new error with a key and message to the validation result.
+  /// </summary>
+  /// <param name="key">The key associated with the error.</param>
+  /// <param name="error">The error message to be added.</param>
+  /// <returns>A new instance of <see cref="ValidationResult"/> with the added error.</returns>
+  /// <remarks>
+  /// This method creates a new <see cref="ValidationErrorMessageWithKey"/> using the provided key and error message
+  /// and appends it to the existing list of errors in the validation result.
+  /// </remarks>
+  /// <exception cref="ArgumentNullException">Thrown if the provided key or error message is null.</exception>
+  public ValidationResult AddError(string key, string error) {
+    ArgumentNullException.ThrowIfNull(key);
+    ArgumentNullException.ThrowIfNull(error);
+    return new ValidationResult(Errors.Append(Validation.Error(key, error)).ToImmutableList());
   }
 
   /// <summary>
@@ -51,14 +83,27 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
   /// <param name="keyValueSeparator">The separator used between error code and message. Default is ":".</param>
   /// <returns>A concatenated string of errors with optional code and message separation.</returns>
+  /// <remarks>
+  /// If the validation result contains custom error types, consider using the overload:
+  /// <seealso cref="AggregateErrors(Func{ValidationError, string}, string)"/>
+  /// </remarks>
+  /// <exception cref="NotSupportedException">Thrown if containing custom error type.</exception>
   public string AggregateErrors(string separator = ",", string keyValueSeparator = ":")
-    => string.Join(separator, Errors.Select(ToStringSelector(keyValueSeparator)));
+    => AggregateErrors(DefaultErrorSelector(keyValueSeparator), separator);
 
-  static Func<ValidationError, string> ToStringSelector(string keyValueSeparator) {
-    return e => e switch
-    {
-      ValidationErrorWithCode errorWithCode => $"{errorWithCode.Code}{keyValueSeparator}{errorWithCode.Message}",
-      _ => e.Message
-    };
-  }
+  /// <summary>
+  /// Aggregates the errors in the validation result into a single string using the specified selector and separator.
+  /// </summary>
+  /// <param name="selector">A function to extract a string representation from each ValidationError.</param>
+  /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
+  /// <returns>A concatenated string of errors based on the provided selector and separator.</returns>
+  public string AggregateErrors(Func<ValidationError, string> selector, string separator = ",")
+    => string.Join(separator, Errors.Select(selector));
+
+  static Func<ValidationError, string> DefaultErrorSelector(string keyValueSeparator) => e => e switch
+  {
+    ValidationErrorMessageWithKey errorWithKey => $"{errorWithKey.Key}{keyValueSeparator}{errorWithKey.Message}",
+    ValidationErrorMessage errorMessage => errorMessage.Message,
+    _ => throw new NotSupportedException()
+  };
 }
