@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace Frognar.ValidDotNet;
 
@@ -57,8 +58,9 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   static Func<ValidationError, string> ToStringSelector(string keyValueSeparator) {
     return e => e switch
     {
-      ValidationErrorWithCode errorWithCode => $"{errorWithCode.Code}{keyValueSeparator}{errorWithCode.Message}",
-      _ => e.Message
+      ValidationErrorMessageWithKey errorWithKey => $"{errorWithKey.Key}{keyValueSeparator}{errorWithKey.Message}",
+      ValidationErrorMessage errorMessage => errorMessage.Message,
+      _ => throw new UnreachableException()
     };
   }
 }
