@@ -3,8 +3,8 @@
 public static class Errors {
   record CustomError : ValidationError;
 
-  public static ValidationError Error(string error) => new ValidationErrorMessage(error);
-  public static ValidationError Error(string code, string error) => new ValidationErrorMessageWithKey(code, error);
+  public static ValidationError Error(string error) => Validation.Error(error);
+  public static ValidationError Error(string code, string error) => Validation.Error(code, error);
   public static ValidationError Custom() => new CustomError();
 
   public static Func<ValidationError, string> OnlyCustom(string custom) => _ => custom;

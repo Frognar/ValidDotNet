@@ -38,7 +38,8 @@ public class ValidationResultTests {
 
   [Fact]
   public void ThrowsExceptionWhenNullError() {
-    Func<ValidationResult> act = () => Result().AddError(null!);
+    ValidationError error = null!;
+    Func<ValidationResult> act = () => Result().AddError(error);
     act.Should().Throw<ArgumentNullException>();
   }
 
