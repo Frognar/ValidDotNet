@@ -65,11 +65,9 @@ public class ValidationResultTests {
     ResultWith(errors).AggregateErrors(separator, keyValueSeparator).Should().Be(expected);
   }
 
-  record CustomError : ValidationError;
-
   [Fact]
   public void ThrowsNotSupportedExceptionWhenDealingWithCustomError() {
-    Func<string> act = () => ResultWith(new CustomError()).AggregateErrors();
+    Func<string> act = () => ResultWith(Custom()).AggregateErrors();
     act.Should().Throw<NotSupportedException>();
   }
 
@@ -100,38 +98,10 @@ public class ValidationResultTests {
 
   public static IEnumerable<object[]> GetWithCustomErrors() {
     yield return [Array.Empty<ValidationError>(), (ValidationError _) => "custom", ",", ""];
-    yield return [new[] { new CustomError() }, (ValidationError _) => "custom", ",", "custom"];
-    yield return [new[] { new CustomError(), Error("c1", "e1") }, (ValidationError _) => "custom", ",", "custom,custom"];
-    yield return [
-      new[] { new CustomError(), Error("c1", "e1") },
-      (ValidationError e) => e switch
-      {
-        ValidationErrorMessageWithKey withKey => $"{withKey.Key}:{withKey.Message}",
-        _ => "custom"
-      },
-      ",",
-      "custom,c1:e1"
-    ];
-    yield return [
-      new[] { new CustomError(), Error("c1", "e1"), Error("c2", "e1") },
-      (ValidationError e) => e switch
-      {
-        ValidationErrorMessageWithKey withKey => $"{withKey.Key}|{withKey.Message}",
-        _ => "custom"
-      },
-      "\n",
-      "custom\nc1|e1\nc2|e1"
-    ];
-    yield return [
-      new[] { new CustomError(), Error("a"), Error("c1", "e1") },
-      (ValidationError e) => e switch
-      {
-        ValidationErrorMessageWithKey withKey => $"{withKey.Key}:{withKey.Message}",
-        ValidationErrorMessage message => message.Message,
-        _ => "custom"
-      },
-      "\n",
-      "custom\na\nc1:e1"
-    ];
+    yield return [new[] { Custom() }, (ValidationError _) => "custom", ",", "custom"];
+    yield return [new[] { Custom(), Error("c1", "e1") }, OnlyCustom("custom"), ",", "custom,custom"];
+    yield return [new[] { Custom(), Error("c1", "e1") }, KeyedWithCustom("custom", ":"), ",", "custom,c1:e1"];
+    yield return [new[] { Custom(), Error("c1", "e1") }, KeyedWithCustom("custom", "|"), "\n", "custom\nc1|e1"];
+    yield return [new[] { Custom(), Error("a"), Error("c1", "e1") }, AllTypes("custom", ":"), "\n", "custom\na\nc1:e1"];
   }
 }
