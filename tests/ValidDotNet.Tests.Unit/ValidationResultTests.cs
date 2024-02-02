@@ -70,6 +70,32 @@ public class ValidationResultTests {
   }
 
   [Fact]
+  public void IsInvalidWhenKeyedErrorAdded() {
+    Result().AddError("Key", "error").IsValid.Should().BeFalse();
+  }
+
+  [Fact]
+  public void HasErrorsWhenKeyedErrorAdded() {
+    ValidationResult result = Result().AddError("key", "error");
+    result.Errors.Should().HaveCount(1);
+    result.Errors.Should().Contain(Error("key", "error"));
+  }
+
+  [Fact]
+  public void ThrowsExceptionWhenNullKeyedErrorMessage() {
+    string error = null!;
+    Func<ValidationResult> act = () => Result().AddError("key", error);
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
+  public void ThrowsExceptionWhenNullKeyedErrorKey() {
+    string key = null!;
+    Func<ValidationResult> act = () => Result().AddError(key, "error");
+    act.Should().Throw<ArgumentNullException>();
+  }
+
+  [Fact]
   public void HasMultipleErrorsWhenErrorAddedToInvalid() {
     ValidationResult result = ResultWith([Error("error1")]).AddError(Error("code1", "error2"));
     result.Errors.Should().HaveCount(2);

@@ -59,6 +59,23 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
     ArgumentNullException.ThrowIfNull(error);
     return new ValidationResult(Errors.Append(Validation.Error(error)).ToImmutableList());
   }
+  
+  /// <summary>
+  /// Adds a new error with a key and message to the validation result.
+  /// </summary>
+  /// <param name="key">The key associated with the error.</param>
+  /// <param name="error">The error message to be added.</param>
+  /// <returns>A new instance of <see cref="ValidationResult"/> with the added error.</returns>
+  /// <remarks>
+  /// This method creates a new <see cref="ValidationErrorMessageWithKey"/> using the provided key and error message
+  /// and appends it to the existing list of errors in the validation result.
+  /// </remarks>
+  /// <exception cref="ArgumentNullException">Thrown if the provided key or error message is null.</exception>
+  public ValidationResult AddError(string key, string error) {
+    ArgumentNullException.ThrowIfNull(key);
+    ArgumentNullException.ThrowIfNull(error);
+    return new ValidationResult(Errors.Append(Validation.Error(key, error)).ToImmutableList());
+  }
 
   /// <summary>
   /// Aggregates the errors in the validation result into a single string.
