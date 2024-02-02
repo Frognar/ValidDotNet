@@ -44,23 +44,19 @@ public class ValidationResultTests {
 
   [Fact]
   public void HasMultipleErrorsWhenErrorAddedToInvalid() {
-    ValidationResult result = ResultWith([Error("error1")]).AddError(Error("error2"));
+    ValidationResult result = ResultWith([Error("error1")]).AddError(Error("code1", "error2"));
     result.Errors.Should().HaveCount(2);
-    result.Errors.Should().ContainInOrder(Error("error1"), Error("error2"));
-  }
-
-  [Theory]
-  [InlineData(new string[] { }, "\n", "")]
-  [InlineData(new[] { "a" }, "\n", "a")]
-  [InlineData(new[] { "a", "b" }, "\n", "a\nb")]
-  [InlineData(new[] { "a", "b", "c", "d" }, ",", "a,b,c,d")]
-  public void AggregatesErrorsToSingleStringWithSeparator(string[] errors, string separator, string expected) {
-    ValidationError[] validationErrors = errors.Select(e => new ValidationError(e)).ToArray();
-    ResultWith(validationErrors).AggregateErrors(separator).Should().Be(expected);
+    result.Errors.Should().ContainInOrder(Error("error1"), Error("code1", "error2"));
   }
 
   [Theory]
   [MemberData(nameof(GetErrors))]
+  public void AggregatesErrorsToSingleStringWithSeparator(ValidationError[] errors, string separator, string expected) {
+    ResultWith(errors).AggregateErrors(separator).Should().Be(expected);
+  }
+
+  [Theory]
+  [MemberData(nameof(GetMixedErrors))]
   public void AggregatesErrorsWithCodesToSingleStringWithSeperators(
     ValidationError[] errors,
     string separator,
@@ -70,36 +66,17 @@ public class ValidationResultTests {
   }
 
   public static IEnumerable<object[]> GetErrors() {
-    yield return [new ValidationErrorWithCode[] { }, ",", ":", ""];
-    yield return [new[] { new ValidationErrorWithCode("code1", "error1") }, ",", ":", "code1:error1"];
-    yield return
-    [
-      new[]
-      {
-        new ValidationErrorWithCode("code1", "error1"),
-        new ValidationErrorWithCode("code2", "error1")
-      },
-      ",", ":", "code1:error1,code2:error1"
-    ];
-    yield return
-    [
-      new[]
-      {
-        new ValidationErrorWithCode("code1", "error1"),
-        new ValidationErrorWithCode("code2", "error1"),
-        new ValidationErrorWithCode("code2", "error2")
-      },
-      "\n", "|", "code1|error1\ncode2|error1\ncode2|error2"
-    ];
-    yield return
-    [
-      new[]
-      {
-        new ValidationErrorWithCode("code1", "error1"),
-        new ValidationError("superError"),
-        new ValidationErrorWithCode("code2", "error2")
-      },
-      "\n", "|", "code1|error1\nsuperError\ncode2|error2"
-    ];
+    yield return [Array.Empty<ValidationError>(), "\n", ""];
+    yield return [new[] { Error("a") }, "\n", "a"];
+    yield return [new[] { Error("a"), Error("b") }, "\n", "a\nb"];
+    yield return [new[] { Error("a"), Error("b"), Error("c"), Error("d") }, ",", "a,b,c,d"];
+  }
+
+  public static IEnumerable<object[]> GetMixedErrors() {
+    yield return [Array.Empty<ValidationError>(), ",", ":", ""];
+    yield return [new[] { Error("c", "e") }, ",", ":", "c:e"];
+    yield return [new[] { Error("c1", "e1"), Error("c2", "e1") }, ",", ":", "c1:e1,c2:e1"];
+    yield return [new[] { Error("c1", "e1"), Error("c2", "e1"), Error("c2", "e2") }, "\n", "|", "c1|e1\nc2|e1\nc2|e2"];
+    yield return [new[] { Error("c1", "e1"), Error("a"), Error("c2", "e2") }, "\n", "|", "c1|e1\na\nc2|e2"];
   }
 }
