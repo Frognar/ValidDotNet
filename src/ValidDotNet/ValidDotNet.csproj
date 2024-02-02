@@ -4,7 +4,7 @@
         <RootNamespace>Frognar.ValidDotNet</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>Frognar.ValidDotNet</PackageId>
-        <Version>0.1.0</Version>
+        <Version>0.1.1</Version>
         <Title>ValidDotNet</Title>
         <Description>The ValidDotNet package provides a versatile set of classes for streamlined validation in C# applications. The package includes a ValidationResult record struct, allowing easy tracking of validation errors, and a generic Validator class that enables the definition and application of validation rules on objects of type T. The package promotes clean and concise validation logic in your software systems, enhancing maintainability and reliability.</Description>
         <Copyright>Frognar 2024</Copyright>
@@ -14,6 +14,9 @@
         <RepositoryUrl>https://github.com/Frognar/ValidDotNet</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Validation, C#</PackageTags>
+        <PackageReleaseNotes>v 0.1.1:
+- support for custom error types
+- factory methods for validation errors</PackageReleaseNotes>
     </PropertyGroup>
     
     <ItemGroup>
