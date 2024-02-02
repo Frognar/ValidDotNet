@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace Frognar.ValidDotNet;
 
@@ -52,6 +51,7 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
   /// <param name="keyValueSeparator">The separator used between error code and message. Default is ":".</param>
   /// <returns>A concatenated string of errors with optional code and message separation.</returns>
+  /// <exception cref="NotSupportedException">Thrown if containing custom error type.</exception>
   public string AggregateErrors(string separator = ",", string keyValueSeparator = ":")
     => string.Join(separator, Errors.Select(ToStringSelector(keyValueSeparator)));
 
@@ -60,7 +60,7 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
     {
       ValidationErrorMessageWithKey errorWithKey => $"{errorWithKey.Key}{keyValueSeparator}{errorWithKey.Message}",
       ValidationErrorMessage errorMessage => errorMessage.Message,
-      _ => throw new UnreachableException()
+      _ => throw new NotSupportedException()
     };
   }
 }
