@@ -51,6 +51,10 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
   /// <param name="keyValueSeparator">The separator used between error code and message. Default is ":".</param>
   /// <returns>A concatenated string of errors with optional code and message separation.</returns>
+  /// <remarks>
+  /// If the validation result contains custom error types, consider using the overload:
+  /// <seealso cref="AggregateErrors(Func{ValidationError, string}, string)"/>
+  /// </remarks>
   /// <exception cref="NotSupportedException">Thrown if containing custom error type.</exception>
   public string AggregateErrors(string separator = ",", string keyValueSeparator = ":")
     => AggregateErrors(DefaultErrorSelector(keyValueSeparator), separator);
