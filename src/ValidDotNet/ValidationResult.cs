@@ -63,4 +63,7 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
       _ => throw new NotSupportedException()
     };
   }
+
+  public string AggregateErrors(Func<ValidationError, string> selector, string separator = ",")
+    => string.Join(separator, Errors.Select(selector));
 }

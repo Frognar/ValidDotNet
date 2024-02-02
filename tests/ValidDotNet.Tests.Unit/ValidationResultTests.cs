@@ -65,6 +65,24 @@ public class ValidationResultTests {
     ResultWith(errors).AggregateErrors(separator, keyValueSeparator).Should().Be(expected);
   }
 
+  record CustomError : ValidationError;
+
+  [Fact]
+  public void ThrowsNotSupportedExceptionWhenDealingWithCustomError() {
+    Func<string> act = () => ResultWith(new CustomError()).AggregateErrors();
+    act.Should().Throw<NotSupportedException>();
+  }
+
+  [Theory]
+  [MemberData(nameof(GetWithCustomErrors))]
+  public void HandlesCustomErrorsWithSelectorMethod(
+    ValidationError[] errors,
+    Func<ValidationError, string> selector,
+    string separator,
+    string expected) {
+    ResultWith(errors).AggregateErrors(selector, separator).Should().Be(expected);
+  }
+
   public static IEnumerable<object[]> GetErrors() {
     yield return [Array.Empty<ValidationError>(), "\n", ""];
     yield return [new[] { Error("a") }, "\n", "a"];
@@ -80,11 +98,40 @@ public class ValidationResultTests {
     yield return [new[] { Error("c1", "e1"), Error("a"), Error("c2", "e2") }, "\n", "|", "c1|e1\na\nc2|e2"];
   }
 
-  record CustomError : ValidationError;
-
-  [Fact]
-  public void ThrowsNotSupportedExceptionWhenDealingWithCustomError() {
-    Func<string> act = () => ResultWith(new CustomError()).AggregateErrors();
-    act.Should().Throw<NotSupportedException>();
+  public static IEnumerable<object[]> GetWithCustomErrors() {
+    yield return [Array.Empty<ValidationError>(), (ValidationError _) => "custom", ",", ""];
+    yield return [new[] { new CustomError() }, (ValidationError _) => "custom", ",", "custom"];
+    yield return [new[] { new CustomError(), Error("c1", "e1") }, (ValidationError _) => "custom", ",", "custom,custom"];
+    yield return [
+      new[] { new CustomError(), Error("c1", "e1") },
+      (ValidationError e) => e switch
+      {
+        ValidationErrorMessageWithKey withKey => $"{withKey.Key}:{withKey.Message}",
+        _ => "custom"
+      },
+      ",",
+      "custom,c1:e1"
+    ];
+    yield return [
+      new[] { new CustomError(), Error("c1", "e1"), Error("c2", "e1") },
+      (ValidationError e) => e switch
+      {
+        ValidationErrorMessageWithKey withKey => $"{withKey.Key}|{withKey.Message}",
+        _ => "custom"
+      },
+      "\n",
+      "custom\nc1|e1\nc2|e1"
+    ];
+    yield return [
+      new[] { new CustomError(), Error("a"), Error("c1", "e1") },
+      (ValidationError e) => e switch
+      {
+        ValidationErrorMessageWithKey withKey => $"{withKey.Key}:{withKey.Message}",
+        ValidationErrorMessage message => message.Message,
+        _ => "custom"
+      },
+      "\n",
+      "custom\na\nc1:e1"
+    ];
   }
 }
