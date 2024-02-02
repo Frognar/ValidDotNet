@@ -53,17 +53,21 @@ public readonly record struct ValidationResult(ImmutableList<ValidationError> Er
   /// <returns>A concatenated string of errors with optional code and message separation.</returns>
   /// <exception cref="NotSupportedException">Thrown if containing custom error type.</exception>
   public string AggregateErrors(string separator = ",", string keyValueSeparator = ":")
-    => string.Join(separator, Errors.Select(ToStringSelector(keyValueSeparator)));
+    => AggregateErrors(DefaultErrorSelector(keyValueSeparator), separator);
 
-  static Func<ValidationError, string> ToStringSelector(string keyValueSeparator) {
-    return e => e switch
-    {
-      ValidationErrorMessageWithKey errorWithKey => $"{errorWithKey.Key}{keyValueSeparator}{errorWithKey.Message}",
-      ValidationErrorMessage errorMessage => errorMessage.Message,
-      _ => throw new NotSupportedException()
-    };
-  }
-
+  /// <summary>
+  /// Aggregates the errors in the validation result into a single string using the specified selector and separator.
+  /// </summary>
+  /// <param name="selector">A function to extract a string representation from each ValidationError.</param>
+  /// <param name="separator">The separator used to concatenate the error messages. Default is ",".</param>
+  /// <returns>A concatenated string of errors based on the provided selector and separator.</returns>
   public string AggregateErrors(Func<ValidationError, string> selector, string separator = ",")
     => string.Join(separator, Errors.Select(selector));
+
+  static Func<ValidationError, string> DefaultErrorSelector(string keyValueSeparator) => e => e switch
+  {
+    ValidationErrorMessageWithKey errorWithKey => $"{errorWithKey.Key}{keyValueSeparator}{errorWithKey.Message}",
+    ValidationErrorMessage errorMessage => errorMessage.Message,
+    _ => throw new NotSupportedException()
+  };
 }
