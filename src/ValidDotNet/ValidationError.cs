@@ -3,7 +3,7 @@
 /// <summary>
 /// Static class providing methods for creating validation errors.
 /// </summary>
-public static class Validation {
+public static partial class Validation {
   /// <summary>
   /// Creates a validation error with a simple error message.
   /// </summary>
