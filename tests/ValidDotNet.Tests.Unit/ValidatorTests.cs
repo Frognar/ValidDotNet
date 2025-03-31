@@ -1,7 +1,7 @@
 ﻿namespace Frognar.ValidDotNet.Tests.Unit;
 
 public class ValidatorTests {
-  class OddIntsValidator() : Validator<int>([(i => i % 2 == 0, Error("must be odd"))]);
+  class OddIntsValidator() : Validator<int>([MustBeOdd]);
 
   readonly OddIntsValidator oddIntsValidator;
   readonly Validator<int> oddIntsSmallerThan10Validator;
@@ -9,7 +9,7 @@ public class ValidatorTests {
   public ValidatorTests() {
     oddIntsValidator = new OddIntsValidator();
     oddIntsSmallerThan10Validator =
-      oddIntsValidator.With(extraRules: [(i => i >= 10, Error("must be smaller than 10"))]);
+      oddIntsValidator.With(extraRules: [MustBeSmallerThan10]);
   }
 
   [Theory]
