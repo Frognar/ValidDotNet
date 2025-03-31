@@ -1,0 +1,13 @@
+﻿<Solution>
+  <Folder Name="/solution-items/">
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\ValidDotNet\ValidDotNet.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\ValidDotNet.Tests.Unit\ValidDotNet.Tests.Unit.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>
