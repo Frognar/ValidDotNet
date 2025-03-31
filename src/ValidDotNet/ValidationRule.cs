@@ -1,9 +1,6 @@
 namespace Frognar.ValidDotNet;
 
-public sealed record ValidationRule<T>(Func<T, bool> IsInvalid, ValidationError Error) {
-  public static implicit operator ValidationRule<T>((Func<T, bool> isInvalid, ValidationError error) rule)
-    => Validation.Rule(rule.isInvalid).WithError(rule.error);
-}
+public sealed record ValidationRule<T>(Func<T, bool> IsInvalid, ValidationError Error);
 
 public static partial class Validation {
   readonly static ValidationError defaultError = Error("Validation failed");
